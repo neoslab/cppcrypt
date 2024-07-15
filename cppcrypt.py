@@ -1,17 +1,30 @@
+# coding: utf-8
+
+# Import libraries
 import os
 import random
 import re
 import string
+import sys
+import argparse
 
 
+# Class Builder
 class CppCrypt:
+    version = "1.0.1"
 
+    # @name: __init__()
+    # @description: Class initialization
+    # @return: self values
     def __init__(self, scriptpath):
         """ Class initialization """
         self.filepath = scriptpath
         self.filebase, self.extension = os.path.splitext(os.path.basename(scriptpath))
         self.validexts = [".cpp", ".h"]
 
+    # @name: namegenerator()
+    # @description: Rename all variables and functions
+    # @return: string
     def namegenerator(self, givenstring):
         """ Rename all variables and functions """
         varswords = {}
@@ -43,12 +56,18 @@ class CppCrypt:
             index += 1
         return newstring
 
+    # @name: randstring()
+    # @description: Generate a random string
+    # @return: string
     @staticmethod
     def randstring(string_length=8):
         """ Generate a random string """
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for _ in range(string_length))
 
+    # @name: cleanspaces()
+    # @description: Remove whitespace
+    # @return: string
     @staticmethod
     def cleanspaces(a):
         """ Remove whitespace """
@@ -78,6 +97,9 @@ class CppCrypt:
             index += 1
         return a
 
+    # @name: cleancomment()
+    # @description: Remove C++ comments
+    # @return: string
     @staticmethod
     def cleancomment(givenstring):
         """ Remove C++ comments """
@@ -85,7 +107,10 @@ class CppCrypt:
         givenstring = re.sub(r"/\*.*?\*/", "", givenstring, flags=re.DOTALL)
         return givenstring
 
-    def obfuscatefile(self):
+    # @name: obfuscatefile()
+    # @description: Obfuscate the C++ source file
+    # @return: string
+    def obfuscatefile(self, output_path=None, output_filename=None):
         """ Obfuscate the C++ source file """
         try:
             with open(self.filepath) as file_data:
@@ -94,12 +119,10 @@ class CppCrypt:
                 filestring = self.namegenerator(filestring)
                 filestring = self.cleanspaces(filestring)
 
-                output_path = input("Enter the output path (leave blank for current directory): ").strip()
-                if not output_path:
+                if output_path is None:
                     output_path = os.path.dirname(self.filepath)
 
-                output_filename = input("Enter the output filename (without extension): ").strip()
-                if not output_filename:
+                if output_filename is None:
                     output_filename = self.filebase + ".obf"
 
                 output_file = os.path.join(output_path, output_filename + self.extension)
@@ -110,8 +133,67 @@ class CppCrypt:
         except IOError as e:
             print("Error: {}".format(e))
 
+    # @name: getversion()
+    # @description: Return the script version
+    # @return: string
+    @staticmethod
+    def getversion():
+        return CppCrypt.version
 
+
+# Custom Help Formatter
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def _format_action_invocation(self, action):
+        if not action.option_strings:
+            return self._metavar_formatter(action, action.dest)(1)[0]
+        parts = []
+
+        if action.nargs == 0:
+            parts.extend(action.option_strings)
+        else:
+            default = action.dest.upper()
+            args_string = self._format_args(action, default)
+            for option_string in action.option_strings:
+                parts.append('%s %s' % (option_string, args_string))
+        return ', '.join(parts).replace(' ,', ',')
+
+
+# Menu function
+def main():
+    parser = argparse.ArgumentParser(description="CppCrypt - A C++ Source Code Obfuscator",
+                                     formatter_class=CustomHelpFormatter)
+    parser.add_argument('-p', '--path', type=str, metavar='',
+                        help="Full path to the C++ file to be obfuscated.")
+    parser.add_argument('-o', '--output', type=str, metavar='',
+                        help="Full path for the output file, including the filename.")
+    parser.add_argument('-v', '--version', action='store_true',
+                        help="Display the current version of CppCrypt.")
+
+    args = parser.parse_args()
+
+    if args.version:
+        print("CppCrypt version: {}".format(CppCrypt.getversion()))
+        sys.exit(0)
+
+    if args.path:
+        if not os.path.isfile(args.path):
+            print("Error: The specified path does not exist or is not a file.")
+            sys.exit(1)
+
+        obfuscator = CppCrypt(args.path)
+        if args.output:
+            output_dir = os.path.dirname(args.output)
+            if not os.path.isdir(output_dir):
+                print("Error: The specified output directory does not exist.")
+                sys.exit(1)
+            output_filename = os.path.basename(args.output)
+            obfuscator.obfuscatefile(output_path=output_dir, output_filename=output_filename)
+        else:
+            obfuscator.obfuscatefile()
+    else:
+        parser.print_help()
+
+
+# Callback
 if __name__ == "__main__":
-    filepath = input('Path to C++ Source File: ')
-    obfuscator = CppCrypt(filepath)
-    obfuscator.obfuscatefile()
+    main()
