@@ -2,6 +2,8 @@
 
 CppCrypt is a Python script designed to obfuscate C++ source code by renaming variables and functions, removing comments, and cleaning up whitespace. This can be useful for protecting intellectual property or simply making the code harder to read and reverse-engineer.
 
+* * *
+
 ## Features
 
 - **Variable and Function Renaming**: Automatically generates random names for variables and functions, making the code harder to understand.
@@ -17,7 +19,7 @@ Ensure you have Python installed on your system. This script does not require an
 1. Save the script as `cppcrypt.py`.
 2. Run the script with Python:
 
-```sh
+```shell
 python cppcrypt.py
 ```
 
@@ -26,7 +28,7 @@ python cppcrypt.py
 
 ## Example
 
-```sh
+```shell
 $ python cppcrypt.py
 Path to C++ Source File: /path/to/your/file.cpp
 Enter the output path (leave blank for current directory): 
@@ -84,13 +86,13 @@ To build an executable from the script, follow these steps:
 
 1. Install the required dependencies:
 
-```sh
+```shell
 python -m pip install -r requirements.txt
 ```
 
 2. Run the `builder.py` script:
 
-```sh
+```shell
 python builder.py --output <name>
 ```
 
@@ -99,7 +101,3 @@ python builder.py --output <name>
 - This script is intended for obfuscation purposes only. It is not designed to improve or optimize code performance.
 - Ensure you have backups of your original code before using this tool, as the obfuscation process is irreversible.
 - The script handles basic C++ syntax and common coding patterns but may not cover all edge cases. Review the obfuscated code to ensure it still functions as expected.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
